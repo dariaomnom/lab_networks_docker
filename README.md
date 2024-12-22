@@ -10,4 +10,6 @@ docker compose up
 
 Приложение станет доступно по адресу
 http://localhost:8000/
+
+curl http://127.0.0.1:8000/api/v1/groups/
 # lab_networks_docker
