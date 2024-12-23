@@ -1,4 +1,4 @@
-FROM python:3.11-alpine
+FROM python:3.11-alpine as builder
 
 RUN apk update && apk add --no-cache \
     build-base \
@@ -6,14 +6,26 @@ RUN apk update && apk add --no-cache \
     postgresql-dev \
     libjpeg-turbo-dev \
     zlib-dev \
-    musl-dev \
-    && pip install --upgrade pip
+    musl-dev
 
-WORKDIR /app/yatube_api
+WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt && rm -rf /root/.cache
+RUN pip install --upgrade pip && \
+    pip install --prefix=/install --no-cache-dir -r requirements.txt
+
+FROM python:3.11-alpine
+
+RUN apk add --no-cache \
+    libffi \
+    postgresql-libs \
+    libjpeg-turbo \
+    zlib
+
+WORKDIR /app/yatube_api
+
+COPY --from=builder /install /usr/local
 
 RUN adduser -D appuser
 USER appuser
